@@ -5,7 +5,9 @@ from pydantic import BaseModel
 
 
 class Receipt(BaseModel):
-    """Represents one tool execution event."""
+    """
+    Represents a single tool execution event.
+    """
 
     event_id: str
     parent_event_hash: Optional[str] = None
@@ -18,7 +20,9 @@ class Receipt(BaseModel):
 
 
 class WorkOrder(BaseModel):
-    """Represents a work order for an AI agent."""
+    """
+    Represents a work order delegated between AI agents.
+    """
 
     task_id: str
     nonce: str
@@ -28,11 +32,17 @@ class WorkOrder(BaseModel):
     expiry: datetime
     expected_output_schema: dict
 
+    signature: Optional[str] = None
+
 
 class ExecutionManifest(BaseModel):
-    """Represents the final execution result and verification data."""
+    """
+    Represents the final execution result and verification data.
+    """
 
     task_id: str
     result_artifact: dict
     merkle_root: str
     receipts: list[Receipt]
+
+    signature: Optional[str] = None
