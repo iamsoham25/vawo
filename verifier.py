@@ -98,7 +98,23 @@ class Verifier:
             json_data.encode("utf-8")
         ).hexdigest()
 
-    
+
+    @classmethod
+    def _receipt_hash(cls, receipt) -> str:
+        """
+        Calculate the hash of a Receipt.
+
+        This matches ToolGateway._get_receipt_hash().
+        """
+
+        if hasattr(receipt, "model_dump"):
+            receipt_data = receipt.model_dump(
+                mode="json"
+            )
+        else:
+            receipt_data = receipt
+
+        return cls._hash_data(receipt_data)
 
 
     
