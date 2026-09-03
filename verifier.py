@@ -65,4 +65,8 @@ class Verifier:
         self.nonce_tracker = nonce_tracker
         self.agent_public_keys = agent_public_keys
 
+    # ==========================================================
+    # INTERNAL HASHING HELPERS
+    # ==========================================================
+
     
