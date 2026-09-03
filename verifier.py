@@ -122,4 +122,22 @@ class Verifier:
     # ==========================================================
 
 
-    
+    @classmethod
+    def _calculate_merkle_root(
+        cls,
+        receipt_chain: list
+    ):
+
+         """
+        Calculate the Merkle root of a receipt chain.
+
+        The algorithm is identical to ToolGateway:
+
+        1. Hash every receipt.
+        2. Pair adjacent hashes.
+        3. Hash each pair.
+        4. Duplicate the final hash if the number is odd.
+        5. Continue until one hash remains.
+        """
+
+         
