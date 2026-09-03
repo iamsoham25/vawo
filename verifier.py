@@ -39,4 +39,30 @@ class Verifier:
         5. Independent re-execution
     """
 
+    def __init__(
+        self,
+        nonce_tracker: NonceTracker,
+        agent_public_keys: dict[str, bytes]
+    ):
+        """
+        Initialize the Verifier.
+
+        Args:
+            nonce_tracker:
+                NonceTracker used for replay protection.
+
+            agent_public_keys:
+                Dictionary mapping agent IDs to Ed25519
+                public keys.
+
+                Example:
+                    {
+                        "requester-001": requester_public_key,
+                        "worker-001": worker_public_key
+                    }
+        """
+
+        self.nonce_tracker = nonce_tracker
+        self.agent_public_keys = agent_public_keys
+
     
