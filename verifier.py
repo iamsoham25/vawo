@@ -86,4 +86,19 @@ class Verifier:
         )
 
 
+    @classmethod
+    def _hash_data(cls, data) -> str:
+        """
+        Return SHA-256 hash of canonical JSON data.
+        """
+
+        json_data = cls._canonical_json(data)
+
+        return hashlib.sha256(
+            json_data.encode("utf-8")
+        ).hexdigest()
+
+    
+
+
     
