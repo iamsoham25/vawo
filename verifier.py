@@ -69,4 +69,21 @@ class Verifier:
     # INTERNAL HASHING HELPERS
     # ==========================================================
 
+    @staticmethod
+    def _canonical_json(data) -> str:
+        """
+        Convert data into deterministic JSON.
+
+        This matches the canonical JSON approach used by
+        gateway.py and signing.py.
+        """
+
+        return json.dumps(
+            data,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str
+        )
+
+
     
