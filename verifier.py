@@ -379,5 +379,34 @@ class Verifier:
             expiry
         )
 
+         if not nonce_valid:
+
+            checks_failed.append(
+                "nonce and expiry"
+            )
+
+            if expiry <= datetime.now(
+                timezone.utc
+            ):
+                reason = (
+                    "Work Order has expired"
+                )
+            else:
+                reason = (
+                    "Work Order nonce has "
+                    "already been used"
+                )
+
+            return VerificationResult(
+                accepted=False,
+                reason=reason,
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
+        checks_passed.append(
+            "nonce and expiry"
+        )
+
         
 
