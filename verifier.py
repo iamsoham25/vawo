@@ -185,4 +185,49 @@ class Verifier:
     # RECEIPT CHAIN INTEGRITY
     # ==========================================================
 
+    @classmethod
+    def _verify_receipt_chain(
+        cls,
+        receipt_chain: list
+    ) -> bool:
+        """
+        Verify the parent hash relationship between receipts.
+
+        The first receipt must have no parent.
+
+        Every following receipt must contain the SHA-256
+        hash of the immediately previous receipt.
+        """
+
+        # Empty chain cannot prove execution integrity
+        if not receipt_chain:
+            return False
+
+        # First receipt must not have a parent
+        first_receipt = receipt_chain[0]
+
+        if first_receipt.parent_event_hash is not None:
+            return False
+
+        # Check every subsequent receipt
+        for i in range(
+            1,
+            len(receipt_chain)
+        ):
+            previous_receipt = receipt_chain[i - 1]
+            current_receipt = receipt_chain[i]
+
+            expected_parent_hash = cls._receipt_hash(
+                previous_receipt
+            )
+
+            if (
+                current_receipt.parent_event_hash
+                != expected_parent_hash
+            ):
+                return False
+
+        return True
+
+
     
