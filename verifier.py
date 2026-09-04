@@ -351,4 +351,33 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        if not expiry:
+
+            checks_failed.append(
+                "nonce and expiry"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason="Work Order expiry is missing",
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
+        # Convert ISO datetime string if necessary
+        if isinstance(expiry, str):
+
+            expiry = datetime.fromisoformat(
+                expiry.replace(
+                    "Z",
+                    "+00:00"
+                )
+            )
+
+        nonce_valid = self.nonce_tracker.is_valid(
+            nonce,
+            expiry
+        )
+
         
+
