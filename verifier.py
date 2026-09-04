@@ -234,4 +234,23 @@ class Verifier:
     # VERIFY WORK ORDER
     # ==========================================================
 
-    
+    def verify_work_order(
+        self,
+        work_order_dict: dict,
+        requester_agent_id: str
+    ) -> VerificationResult:
+        """
+        Verify a signed Work Order.
+
+        Checks are performed in order:
+
+            1. Signature
+            2. Nonce and expiry
+
+        Verification stops at the first failure.
+        """
+
+        checks_passed = []
+        checks_failed = []
+
+        
