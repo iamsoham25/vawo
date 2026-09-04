@@ -321,4 +321,8 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        checks_passed.append(
+            "work order signature"
+        )
+
         
