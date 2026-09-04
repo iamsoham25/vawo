@@ -379,7 +379,7 @@ class Verifier:
             expiry
         )
 
-         if not nonce_valid:
+        if not nonce_valid:
 
             checks_failed.append(
                 "nonce and expiry"
@@ -408,5 +408,17 @@ class Verifier:
             "nonce and expiry"
         )
 
-        
+        # Nonce is accepted, so mark it as used
+        self.nonce_tracker.mark_used(
+            nonce
+        )
+
+        return VerificationResult(
+            accepted=True,
+            reason="Work Order verification successful",
+            checks_passed=checks_passed,
+            checks_failed=checks_failed
+        )
+
+    
 
