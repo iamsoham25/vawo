@@ -308,4 +308,17 @@ class Verifier:
             signature
         )
 
+        if not signature_valid:
+
+            checks_failed.append(
+                "work order signature"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason="invalid Work Order signature",
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
