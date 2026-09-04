@@ -334,4 +334,21 @@ class Verifier:
             "nonce"
         )
 
+        expiry = work_order_dict.get(
+            "expiry"
+        )
+
+        if not nonce:
+
+            checks_failed.append(
+                "nonce and expiry"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason="Work Order nonce is missing",
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
