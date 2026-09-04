@@ -281,4 +281,17 @@ class Verifier:
             "signature"
         )
 
+        if not signature:
+
+            checks_failed.append(
+                "work order signature"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason="work order signature is missing",
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
