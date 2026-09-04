@@ -294,4 +294,18 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        # Remove signature before verification
+        data_to_verify = work_order_dict.copy()
+
+        data_to_verify.pop(
+            "signature",
+            None
+        )
+
+        signature_valid = verify_signature(
+            public_key,
+            data_to_verify,
+            signature
+        )
+
         
