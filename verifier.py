@@ -257,4 +257,28 @@ class Verifier:
         # CHECK 1: REQUESTER SIGNATURE
         # ------------------------------------------------------
 
+        if requester_agent_id not in self.agent_public_keys:
+
+            checks_failed.append(
+                "requester public key lookup"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason=(
+                    "unknown requester agent: "
+                    f"{requester_agent_id}"
+                ),
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
+        public_key = self.agent_public_keys[
+            requester_agent_id
+        ]
+
+        signature = work_order_dict.get(
+            "signature"
+        )
+
         
