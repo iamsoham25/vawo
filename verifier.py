@@ -473,5 +473,9 @@ class Verifier:
             worker_agent_id
         ]
 
+        signature = manifest_dict.get(
+            "signature"
+        )
+
         
 
