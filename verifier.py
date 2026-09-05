@@ -469,5 +469,9 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        worker_public_key = self.agent_public_keys[
+            worker_agent_id
+        ]
+
         
 
