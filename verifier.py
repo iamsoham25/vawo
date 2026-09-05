@@ -453,5 +453,21 @@ class Verifier:
         # CHECK 1: MANIFEST SIGNATURE
         # ------------------------------------------------------
 
+        if worker_agent_id not in self.agent_public_keys:
+
+            checks_failed.append(
+                "manifest signature"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason=(
+                    "unknown worker agent: "
+                    f"{worker_agent_id}"
+                ),
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
 
