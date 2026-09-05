@@ -500,5 +500,11 @@ class Verifier:
             None
         )
 
+        signature_valid = verify_signature(
+            worker_public_key,
+            manifest_data_to_verify,
+            signature
+        )
+
         
 
