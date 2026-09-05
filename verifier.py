@@ -490,5 +490,10 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        # Remove signature before verification
+        manifest_data_to_verify = (
+            manifest_dict.copy()
+        )
+
         
 
