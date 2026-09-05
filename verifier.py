@@ -495,5 +495,10 @@ class Verifier:
             manifest_dict.copy()
         )
 
+        manifest_data_to_verify.pop(
+            "signature",
+            None
+        )
+
         
 
