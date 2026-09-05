@@ -477,5 +477,18 @@ class Verifier:
             "signature"
         )
 
+        if not signature:
+
+            checks_failed.append(
+                "manifest signature"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason="manifest signature is missing",
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
 
