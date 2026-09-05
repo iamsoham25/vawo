@@ -519,5 +519,9 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        checks_passed.append(
+            "manifest signature"
+        )
+
         
 
