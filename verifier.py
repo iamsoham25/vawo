@@ -506,5 +506,18 @@ class Verifier:
             signature
         )
 
+        if not signature_valid:
+
+            checks_failed.append(
+                "manifest signature"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason="invalid Execution Manifest signature",
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
 
