@@ -424,3 +424,30 @@ class Verifier:
     # VERIFY EXECUTION
     # ==========================================================
 
+    def verify_execution(
+        self,
+        manifest_dict: dict,
+        receipt_chain: list,
+        worker_agent_id: str,
+        tool_allowlist: list[str],
+        reexecution_fn: callable
+    ) -> VerificationResult:
+        """
+        Verify a Worker's claimed execution.
+
+        Checks are performed in this order:
+
+            1. Manifest signature
+            2. Merkle root
+            3. Tool allowlist
+            4. Receipt chain integrity
+            5. Independent re-execution
+
+        Verification stops at the first failure.
+        """
+
+        checks_passed = []
+        checks_failed = []
+
+        
+
