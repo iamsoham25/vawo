@@ -612,6 +612,10 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
+        checks_passed.append(
+            "receipt chain integrity"
+        )
+
         
 
 
