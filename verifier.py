@@ -643,7 +643,9 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
-        
+        checks_passed.append(
+            "independent re-execution"
+        )
 
 
             
