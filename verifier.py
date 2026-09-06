@@ -616,6 +616,10 @@ class Verifier:
             "receipt chain integrity"
         )
 
+        # ------------------------------------------------------
+        # CHECK 5: INDEPENDENT RE-EXECUTION
+        # ------------------------------------------------------
+
         
 
 
