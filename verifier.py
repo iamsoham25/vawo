@@ -537,5 +537,10 @@ class Verifier:
             )
         )
 
-        
+        if (
+            claimed_merkle_root
+            != calculated_merkle_root
+        ):
+
+            
 
