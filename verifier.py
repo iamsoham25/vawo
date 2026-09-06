@@ -620,7 +620,11 @@ class Verifier:
         # CHECK 5: INDEPENDENT RE-EXECUTION
         # ------------------------------------------------------
 
-        
+        independent_result = reexecution_fn()
+
+        claimed_result = manifest_dict.get(
+            "result_artifact"
+        )
 
 
             
