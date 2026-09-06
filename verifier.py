@@ -565,6 +565,29 @@ class Verifier:
         # CHECK 3: TOOL ALLOWLIST
         # ------------------------------------------------------
 
+        for receipt in receipt_chain:
+
+            if receipt.tool_name not in tool_allowlist:
+
+                checks_failed.append(
+                    "tool allowlist"
+                )
+
+                return VerificationResult(
+                    accepted=False,
+                    reason=(
+                        f"unauthorized tool: "
+                        f"'{receipt.tool_name}' "
+                        f"is not in the tool allowlist"
+                    ),
+                    checks_passed=checks_passed,
+                    checks_failed=checks_failed
+                )
+
+        checks_passed.append(
+            "tool allowlist"
+        )
+
         
 
             
