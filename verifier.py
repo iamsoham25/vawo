@@ -527,5 +527,9 @@ class Verifier:
         # CHECK 2: MERKLE ROOT
         # ------------------------------------------------------
 
+        claimed_merkle_root = manifest_dict.get(
+            "merkle_root"
+        )
+
         
 
