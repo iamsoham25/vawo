@@ -531,5 +531,11 @@ class Verifier:
             "merkle_root"
         )
 
+        calculated_merkle_root = (
+            self._calculate_merkle_root(
+                receipt_chain
+            )
+        )
+
         
 
