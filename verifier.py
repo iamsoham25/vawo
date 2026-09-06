@@ -626,6 +626,25 @@ class Verifier:
             "result_artifact"
         )
 
+        if independent_result != claimed_result:
+
+            checks_failed.append(
+                "independent re-execution"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason=(
+                    "re-execution mismatch: "
+                    "claimed result does not match "
+                    "independent execution"
+                ),
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
+        
+
 
             
 
