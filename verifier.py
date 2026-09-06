@@ -596,6 +596,22 @@ class Verifier:
             receipt_chain
         )
 
+        if not chain_valid:
+
+            checks_failed.append(
+                "receipt chain integrity"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason=(
+                    "receipt chain integrity "
+                    "verification failed"
+                ),
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
         
 
 
