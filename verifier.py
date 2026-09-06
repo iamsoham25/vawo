@@ -542,5 +542,26 @@ class Verifier:
             != calculated_merkle_root
         ):
 
+            checks_failed.append(
+                "merkle root"
+            )
+
+            return VerificationResult(
+                accepted=False,
+                reason=(
+                    "Merkle root mismatch: "
+                    "manifest root does not match "
+                    "the supplied receipt chain"
+                ),
+                checks_passed=checks_passed,
+                checks_failed=checks_failed
+            )
+
+        checks_passed.append(
+            "merkle root"
+        )
+
+        
+
             
 
