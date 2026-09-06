@@ -592,7 +592,12 @@ class Verifier:
         # CHECK 4: RECEIPT CHAIN INTEGRITY
         # ------------------------------------------------------
 
+        chain_valid = self._verify_receipt_chain(
+            receipt_chain
+        )
+
         
+
 
             
 
