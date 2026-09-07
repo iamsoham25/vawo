@@ -279,3 +279,7 @@ print_result(
 
 assert honest_verification.accepted is True
 
+# ==========================================================
+# SCENARIO B: CHEATING WORKER - FABRICATED RESULT
+# ==========================================================
+
