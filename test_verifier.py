@@ -130,3 +130,15 @@ work_order = {
 }
 
 
+# Sign Work Order
+work_order_signature = sign_data(
+    requester_private_key,
+    work_order
+)
+
+work_order["signature"] = (
+    work_order_signature
+)
+
+print("Work Order signed by Requester.")
+
