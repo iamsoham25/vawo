@@ -165,3 +165,21 @@ assert work_order_verification.accepted is True
 # STEP 6: CREATE REAL TOOL CODE
 # ==========================================================
 
+
+code = """
+import json
+import sys
+
+data = json.load(sys.stdin)
+
+result = data["a"] + data["b"]
+
+print(result)
+"""
+
+
+input_data = {
+    "a": 10,
+    "b": 20
+}
+
