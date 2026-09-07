@@ -233,3 +233,29 @@ honest_manifest = {
     "receipts": honest_gateway.receipt_chain
 }
 
+# Sign manifest with Worker private key
+honest_manifest_signature = sign_data(
+    worker_private_key,
+    honest_manifest
+)
+
+honest_manifest["signature"] = (
+    honest_manifest_signature
+)
+
+
+# Independent re-execution function
+def honest_reexecution():
+    """
+    Independently calculate the expected result.
+    """
+
+    result = (
+        input_data["a"]
+        + input_data["b"]
+    )
+
+    return {
+        "result": result
+    }
+
