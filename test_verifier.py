@@ -53,4 +53,20 @@ def print_result(
 # STEP 1: CREATE REQUESTER AND WORKER KEYPAIRS
 # ==========================================================
 
+print("\n")
+print("=" * 70)
+print("STEP 1: CREATING REQUESTER AND WORKER")
+print("=" * 70)
+
+requester_private_key, requester_public_key = (
+    generate_keypair()
+)
+
+worker_private_key, worker_public_key = (
+    generate_keypair()
+)
+
+print("Requester keypair generated.")
+print("Worker keypair generated.")
+
 
