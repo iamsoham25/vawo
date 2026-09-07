@@ -94,3 +94,39 @@ verifier = Verifier(
 # STEP 4: CREATE AND SIGN WORK ORDER
 # ==========================================================
 
+print("\n")
+print("=" * 70)
+print("STEP 2: CREATING SIGNED WORK ORDER")
+print("=" * 70)
+
+work_order_expiry = (
+    datetime.now(timezone.utc)
+    + timedelta(minutes=5)
+)
+
+work_order = {
+    "task_id": "task-001",
+
+    "nonce": "nonce-task-001",
+
+    "input_digest": "input-digest-123",
+
+    "tool_allowlist": [
+        "calculator"
+    ],
+
+    "max_runtime_sec": 10,
+
+    "expiry": work_order_expiry,
+
+    "expected_output_schema": {
+        "type": "object",
+        "properties": {
+            "result": {
+                "type": "integer"
+            }
+        }
+    }
+}
+
+
