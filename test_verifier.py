@@ -161,3 +161,7 @@ print_result(
 
 assert work_order_verification.accepted is True
 
+# ==========================================================
+# STEP 6: CREATE REAL TOOL CODE
+# ==========================================================
+
