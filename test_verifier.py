@@ -210,3 +210,26 @@ print(
 
 print(execution_result)
 
+# The actual answer produced by the task
+honest_result_artifact = {
+    "result": 30
+}
+
+
+# Get real Merkle root
+honest_merkle_root = (
+    honest_gateway.get_merkle_root()
+)
+
+
+# Create manifest
+honest_manifest = {
+    "task_id": "task-001",
+
+    "result_artifact": honest_result_artifact,
+
+    "merkle_root": honest_merkle_root,
+
+    "receipts": honest_gateway.receipt_chain
+}
+
