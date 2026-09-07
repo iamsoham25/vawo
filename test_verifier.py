@@ -356,3 +356,188 @@ assert (
     in fabricated_verification.reason
 )
 
+# ==========================================================
+# SCENARIO C: CHEATING WORKER - UNAUTHORIZED TOOL
+# ==========================================================
+
+print("\n")
+print("=" * 70)
+print("SCENARIO C: CHEATING WORKER - UNAUTHORIZED TOOL")
+print("=" * 70)
+
+
+unauthorized_gateway = ToolGateway(
+    timeout_sec=5
+)
+
+
+# Worker actually executes code,
+# but uses an unauthorized tool name.
+unauthorized_gateway.execute(
+    tool_name="dangerous-tool",
+    code=code,
+    input_data=input_data
+)
+
+
+unauthorized_merkle_root = (
+    unauthorized_gateway.get_merkle_root()
+)
+
+
+unauthorized_manifest = {
+    "task_id": "task-001",
+
+    "result_artifact": {
+        "result": 30
+    },
+
+    "merkle_root": unauthorized_merkle_root,
+
+    "receipts": unauthorized_gateway.receipt_chain
+}
+
+
+# Sign the real manifest
+unauthorized_signature = sign_data(
+    worker_private_key,
+    unauthorized_manifest
+)
+
+unauthorized_manifest["signature"] = (
+    unauthorized_signature
+)
+
+
+def unauthorized_reexecution():
+    return {
+        "result": 30
+    }
+
+
+unauthorized_verification = (
+    verifier.verify_execution(
+        manifest_dict=unauthorized_manifest,
+        receipt_chain=unauthorized_gateway.receipt_chain,
+        worker_agent_id="worker-001",
+        tool_allowlist=[
+            "calculator"
+        ],
+        reexecution_fn=unauthorized_reexecution
+    )
+)
+
+print_result(
+    "CHEATING WORKER - UNAUTHORIZED TOOL",
+    unauthorized_verification
+)
+
+assert unauthorized_verification.accepted is False
+
+assert (
+    "unauthorized tool"
+    in unauthorized_verification.reason
+)
+
+
+# ==========================================================
+# SCENARIO D: CHEATING WORKER - RE-EXECUTION MISMATCH
+# ==========================================================
+
+print("\n")
+print("=" * 70)
+print("SCENARIO D: CHEATING WORKER - RE-EXECUTION MISMATCH")
+print("=" * 70)
+
+
+lying_gateway = ToolGateway(
+    timeout_sec=5
+)
+
+
+# Worker performs a genuine execution.
+lying_gateway.execute(
+    tool_name="calculator",
+    code=code,
+    input_data=input_data
+)
+
+
+lying_merkle_root = (
+    lying_gateway.get_merkle_root()
+)
+
+
+# The execution really produced 30,
+# but Worker claims the result was 999.
+lying_manifest = {
+    "task_id": "task-001",
+
+    "result_artifact": {
+        "result": 999
+    },
+
+    "merkle_root": lying_merkle_root,
+
+    "receipts": lying_gateway.receipt_chain
+}
+
+
+# Worker signs the false claim.
+lying_signature = sign_data(
+    worker_private_key,
+    lying_manifest
+)
+
+lying_manifest["signature"] = (
+    lying_signature
+)
+
+
+# Independent execution knows the real answer.
+def lying_reexecution():
+    return {
+        "result": 30
+    }
+
+
+lying_verification = (
+    verifier.verify_execution(
+        manifest_dict=lying_manifest,
+        receipt_chain=lying_gateway.receipt_chain,
+        worker_agent_id="worker-001",
+        tool_allowlist=[
+            "calculator"
+        ],
+        reexecution_fn=lying_reexecution
+    )
+)
+
+print_result(
+    "CHEATING WORKER - RE-EXECUTION MISMATCH",
+    lying_verification
+)
+
+assert lying_verification.accepted is False
+
+assert (
+    "re-execution mismatch"
+    in lying_verification.reason
+)
+
+
+# ==========================================================
+# FINAL RESULT
+# ==========================================================
+
+print("\n")
+print("=" * 70)
+print("ALL PHASE 3 VERIFIER TESTS PASSED")
+print("=" * 70)
+
+print("\n✓ Requester identity verification: PASSED")
+print("✓ Work Order signature verification: PASSED")
+print("✓ Honest Worker verification: PASSED")
+print("✓ Fabricated result detection: PASSED")
+print("✓ Unauthorized tool detection: PASSED")
+print("✓ Re-execution mismatch detection: PASSED")
