@@ -80,3 +80,13 @@ nonce_tracker = NonceTracker()
 # STEP 3: CREATE VERIFIER
 # ==========================================================
 
+agent_public_keys = {
+    "requester-001": requester_public_key,
+    "worker-001": worker_public_key
+}
+
+verifier = Verifier(
+    nonce_tracker=nonce_tracker,
+    agent_public_keys=agent_public_keys
+)
+
