@@ -90,3 +90,7 @@ verifier = Verifier(
     agent_public_keys=agent_public_keys
 )
 
+# ==========================================================
+# STEP 4: CREATE AND SIGN WORK ORDER
+# ==========================================================
+
