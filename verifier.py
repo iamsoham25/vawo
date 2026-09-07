@@ -1,14 +1,13 @@
-import hashlib
-import json
-
 from datetime import datetime, timezone
 
 from pydantic import BaseModel
 
+from gateway import ToolGateway
 from signing import (
     NonceTracker,
     verify_signature
 )
+
 
 class VerificationResult(BaseModel):
     """
@@ -25,13 +24,11 @@ class Verifier:
     """
     Verifies Work Orders and Worker execution claims.
 
-    The Verifier checks:
-
-    Work Order:
-        1. Ed25519 signature
+    Work Order checks:
+        1. Signature
         2. Nonce and expiry
 
-    Execution:
+    Execution checks:
         1. Manifest signature
         2. Merkle root
         3. Tool allowlist
@@ -52,183 +49,11 @@ class Verifier:
                 NonceTracker used for replay protection.
 
             agent_public_keys:
-                Dictionary mapping agent IDs to Ed25519
-                public keys.
-
-                Example:
-                    {
-                        "requester-001": requester_public_key,
-                        "worker-001": worker_public_key
-                    }
+                Dictionary mapping agent IDs to public keys.
         """
 
         self.nonce_tracker = nonce_tracker
         self.agent_public_keys = agent_public_keys
-
-    # ==========================================================
-    # INTERNAL HASHING HELPERS
-    # ==========================================================
-
-    @staticmethod
-    def _canonical_json(data) -> str:
-        """
-        Convert data into deterministic JSON.
-
-        This matches the canonical JSON approach used by
-        gateway.py and signing.py.
-        """
-
-        return json.dumps(
-            data,
-            sort_keys=True,
-            separators=(",", ":"),
-            default=str
-        )
-
-
-    @classmethod
-    def _hash_data(cls, data) -> str:
-        """
-        Return SHA-256 hash of canonical JSON data.
-        """
-
-        json_data = cls._canonical_json(data)
-
-        return hashlib.sha256(
-            json_data.encode("utf-8")
-        ).hexdigest()
-
-
-    @classmethod
-    def _receipt_hash(cls, receipt) -> str:
-        """
-        Calculate the hash of a Receipt.
-
-        This matches ToolGateway._get_receipt_hash().
-        """
-
-        if hasattr(receipt, "model_dump"):
-            receipt_data = receipt.model_dump(
-                mode="json"
-            )
-        else:
-            receipt_data = receipt
-
-        return cls._hash_data(receipt_data)
-
-
-    # ==========================================================
-    # MERKLE ROOT
-    # ==========================================================
-
-    @classmethod
-    def _calculate_merkle_root(
-        cls,
-        receipt_chain: list
-    ):
-        """
-        Calculate the Merkle root of a receipt chain.
-
-        The algorithm is identical to ToolGateway:
-
-        1. Hash every receipt.
-        2. Pair adjacent hashes.
-        3. Hash each pair.
-        4. Duplicate the final hash if the number is odd.
-        5. Continue until one hash remains.
-        """
-
-        if not receipt_chain:
-            return None
-
-        # Create leaf hashes
-        hashes = []
-
-        for receipt in receipt_chain:
-            receipt_hash = cls._receipt_hash(
-                receipt
-            )
-
-            hashes.append(receipt_hash)
-
-        # Build the Merkle tree
-        while len(hashes) > 1:
-
-            # Duplicate last hash when odd
-            if len(hashes) % 2 != 0:
-                hashes.append(hashes[-1])
-
-            new_level = []
-
-            for i in range(
-                0,
-                len(hashes),
-                2
-            ):
-                left = hashes[i]
-                right = hashes[i + 1]
-
-                combined = left + right
-
-                parent_hash = hashlib.sha256(
-                    combined.encode("utf-8")
-                ).hexdigest()
-
-                new_level.append(parent_hash)
-
-            hashes = new_level
-
-        return hashes[0]
-
-
-    # ==========================================================
-    # RECEIPT CHAIN INTEGRITY
-    # ==========================================================
-
-    @classmethod
-    def _verify_receipt_chain(
-        cls,
-        receipt_chain: list
-    ) -> bool:
-        """
-        Verify the parent hash relationship between receipts.
-
-        The first receipt must have no parent.
-
-        Every following receipt must contain the SHA-256
-        hash of the immediately previous receipt.
-        """
-
-        # Empty chain cannot prove execution integrity
-        if not receipt_chain:
-            return False
-
-        # First receipt must not have a parent
-        first_receipt = receipt_chain[0]
-
-        if first_receipt.parent_event_hash is not None:
-            return False
-
-        # Check every subsequent receipt
-        for i in range(
-            1,
-            len(receipt_chain)
-        ):
-            previous_receipt = receipt_chain[i - 1]
-            current_receipt = receipt_chain[i]
-
-            expected_parent_hash = cls._receipt_hash(
-                previous_receipt
-            )
-
-            if (
-                current_receipt.parent_event_hash
-                != expected_parent_hash
-            ):
-                return False
-
-        return True
-
 
     # ==========================================================
     # VERIFY WORK ORDER
@@ -247,7 +72,7 @@ class Verifier:
             1. Signature
             2. Nonce and expiry
 
-        Verification stops at the first failure.
+        Stops at the first failure.
         """
 
         checks_passed = []
@@ -260,13 +85,13 @@ class Verifier:
         if requester_agent_id not in self.agent_public_keys:
 
             checks_failed.append(
-                "requester public key lookup"
+                "requester signature"
             )
 
             return VerificationResult(
                 accepted=False,
                 reason=(
-                    "unknown requester agent: "
+                    f"unknown requester agent: "
                     f"{requester_agent_id}"
                 ),
                 checks_passed=checks_passed,
@@ -284,12 +109,12 @@ class Verifier:
         if not signature:
 
             checks_failed.append(
-                "work order signature"
+                "requester signature"
             )
 
             return VerificationResult(
                 accepted=False,
-                reason="work order signature is missing",
+                reason="Work Order signature is missing",
                 checks_passed=checks_passed,
                 checks_failed=checks_failed
             )
@@ -311,7 +136,7 @@ class Verifier:
         if not signature_valid:
 
             checks_failed.append(
-                "work order signature"
+                "requester signature"
             )
 
             return VerificationResult(
@@ -322,9 +147,8 @@ class Verifier:
             )
 
         checks_passed.append(
-            "work order signature"
+            "requester signature"
         )
-
 
         # ------------------------------------------------------
         # CHECK 2: NONCE AND EXPIRY
@@ -364,7 +188,7 @@ class Verifier:
                 checks_failed=checks_failed
             )
 
-        # Convert ISO datetime string if necessary
+        # Convert ISO datetime string to datetime
         if isinstance(expiry, str):
 
             expiry = datetime.fromisoformat(
@@ -372,6 +196,13 @@ class Verifier:
                     "Z",
                     "+00:00"
                 )
+            )
+
+        # Handle naive datetime
+        if expiry.tzinfo is None:
+
+            expiry = expiry.replace(
+                tzinfo=timezone.utc
             )
 
         nonce_valid = self.nonce_tracker.is_valid(
@@ -388,10 +219,13 @@ class Verifier:
             if expiry <= datetime.now(
                 timezone.utc
             ):
+
                 reason = (
                     "Work Order has expired"
                 )
+
             else:
+
                 reason = (
                     "Work Order nonce has "
                     "already been used"
@@ -408,7 +242,8 @@ class Verifier:
             "nonce and expiry"
         )
 
-        # Nonce is accepted, so mark it as used
+        # Mark nonce as used only after all checks
+        # performed so far have passed.
         self.nonce_tracker.mark_used(
             nonce
         )
@@ -435,7 +270,7 @@ class Verifier:
         """
         Verify a Worker's claimed execution.
 
-        Checks are performed in this order:
+        Checks are performed in order:
 
             1. Manifest signature
             2. Merkle root
@@ -443,7 +278,7 @@ class Verifier:
             4. Receipt chain integrity
             5. Independent re-execution
 
-        Verification stops at the first failure.
+        Stops at the first failure.
         """
 
         checks_passed = []
@@ -462,7 +297,7 @@ class Verifier:
             return VerificationResult(
                 accepted=False,
                 reason=(
-                    "unknown worker agent: "
+                    f"unknown worker agent: "
                     f"{worker_agent_id}"
                 ),
                 checks_passed=checks_passed,
@@ -485,24 +320,22 @@ class Verifier:
 
             return VerificationResult(
                 accepted=False,
-                reason="manifest signature is missing",
+                reason="Execution Manifest signature is missing",
                 checks_passed=checks_passed,
                 checks_failed=checks_failed
             )
 
         # Remove signature before verification
-        manifest_data_to_verify = (
-            manifest_dict.copy()
-        )
+        manifest_to_verify = manifest_dict.copy()
 
-        manifest_data_to_verify.pop(
+        manifest_to_verify.pop(
             "signature",
             None
         )
 
         signature_valid = verify_signature(
             worker_public_key,
-            manifest_data_to_verify,
+            manifest_to_verify,
             signature
         )
 
@@ -531,10 +364,20 @@ class Verifier:
             "merkle_root"
         )
 
+        # IMPORTANT:
+        # Use the exact ToolGateway implementation.
+        #
+        # This avoids having two different Merkle algorithms
+        # in the project.
+
+        gateway_for_verification = ToolGateway()
+
+        gateway_for_verification.receipt_chain = (
+            receipt_chain
+        )
+
         calculated_merkle_root = (
-            self._calculate_merkle_root(
-                receipt_chain
-            )
+            gateway_for_verification.get_merkle_root()
         )
 
         if (
@@ -592,8 +435,12 @@ class Verifier:
         # CHECK 4: RECEIPT CHAIN INTEGRITY
         # ------------------------------------------------------
 
-        chain_valid = self._verify_receipt_chain(
-            receipt_chain
+        # Again, use the exact implementation from
+        # ToolGateway instead of duplicating the logic.
+
+        chain_valid = (
+            gateway_for_verification
+            .verify_chain_integrity()
         )
 
         if not chain_valid:
@@ -647,7 +494,6 @@ class Verifier:
             "independent re-execution"
         )
 
-
         # ------------------------------------------------------
         # ALL CHECKS PASSED
         # ------------------------------------------------------
@@ -657,4 +503,4 @@ class Verifier:
             reason="execution verification successful",
             checks_passed=checks_passed,
             checks_failed=checks_failed
-        )    
+        )
