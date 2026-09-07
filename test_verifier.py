@@ -70,3 +70,7 @@ print("Requester keypair generated.")
 print("Worker keypair generated.")
 
 
+# ==========================================================
+# STEP 2: CREATE NONCE TRACKER
+# ==========================================================
+
