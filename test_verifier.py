@@ -74,3 +74,4 @@ print("Worker keypair generated.")
 # STEP 2: CREATE NONCE TRACKER
 # ==========================================================
 
+nonce_tracker = NonceTracker()
