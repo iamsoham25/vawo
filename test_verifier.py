@@ -187,3 +187,26 @@ input_data = {
 # SCENARIO A: HONEST WORKER
 # ==========================================================
 
+print("\n")
+print("=" * 70)
+print("SCENARIO A: HONEST WORKER")
+print("=" * 70)
+
+honest_gateway = ToolGateway(
+    timeout_sec=5
+)
+
+
+# Worker executes through ToolGateway
+execution_result = honest_gateway.execute(
+    tool_name="calculator",
+    code=code,
+    input_data=input_data
+)
+
+print(
+    "\nGateway execution result:"
+)
+
+print(execution_result)
+
