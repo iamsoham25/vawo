@@ -283,3 +283,76 @@ assert honest_verification.accepted is True
 # SCENARIO B: CHEATING WORKER - FABRICATED RESULT
 # ==========================================================
 
+print("\n")
+print("=" * 70)
+print("SCENARIO B: CHEATING WORKER - FABRICATED RESULT")
+print("=" * 70)
+
+
+# Worker does NOT actually use the gateway.
+# There are no real receipts.
+
+fabricated_receipt_chain = []
+
+
+# Worker invents a Merkle root
+fabricated_merkle_root = (
+    "fabricated-merkle-root"
+)
+
+
+fabricated_manifest = {
+    "task_id": "task-001",
+
+    "result_artifact": {
+        "result": 30
+    },
+
+    "merkle_root": fabricated_merkle_root,
+
+    "receipts": []
+}
+
+
+# Worker signs the fabricated manifest
+fabricated_signature = sign_data(
+    worker_private_key,
+    fabricated_manifest
+)
+
+fabricated_manifest["signature"] = (
+    fabricated_signature
+)
+
+
+# Re-execution would produce 30
+def fabricated_reexecution():
+    return {
+        "result": 30
+    }
+
+
+fabricated_verification = (
+    verifier.verify_execution(
+        manifest_dict=fabricated_manifest,
+        receipt_chain=fabricated_receipt_chain,
+        worker_agent_id="worker-001",
+        tool_allowlist=[
+            "calculator"
+        ],
+        reexecution_fn=fabricated_reexecution
+    )
+)
+
+print_result(
+    "CHEATING WORKER - FABRICATED RESULT",
+    fabricated_verification
+)
+
+assert fabricated_verification.accepted is False
+
+assert (
+    "Merkle root mismatch"
+    in fabricated_verification.reason
+)
+
