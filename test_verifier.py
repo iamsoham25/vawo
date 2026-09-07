@@ -142,3 +142,8 @@ work_order["signature"] = (
 
 print("Work Order signed by Requester.")
 
+
+# ==========================================================
+# STEP 5: VERIFY WORK ORDER
+# ==========================================================
+
