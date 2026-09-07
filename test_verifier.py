@@ -147,3 +147,17 @@ print("Work Order signed by Requester.")
 # STEP 5: VERIFY WORK ORDER
 # ==========================================================
 
+work_order_verification = (
+    verifier.verify_work_order(
+        work_order,
+        "requester-001"
+    )
+)
+
+print_result(
+    "WORK ORDER VERIFICATION",
+    work_order_verification
+)
+
+assert work_order_verification.accepted is True
+
