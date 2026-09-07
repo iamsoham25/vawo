@@ -259,3 +259,23 @@ def honest_reexecution():
         "result": result
     }
 
+# Verify honest execution
+honest_verification = (
+    verifier.verify_execution(
+        manifest_dict=honest_manifest,
+        receipt_chain=honest_gateway.receipt_chain,
+        worker_agent_id="worker-001",
+        tool_allowlist=[
+            "calculator"
+        ],
+        reexecution_fn=honest_reexecution
+    )
+)
+
+print_result(
+    "HONEST WORKER RESULT",
+    honest_verification
+)
+
+assert honest_verification.accepted is True
+
