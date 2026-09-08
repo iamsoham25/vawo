@@ -14,3 +14,8 @@ from a2a.client import (
     create_client
 )
 
+from a2a.helpers import (
+    get_data_parts,
+    new_data_message
+)
+
