@@ -115,39 +115,17 @@ def load_worker_public_key() -> bytes:
 # EXTRACT MANIFEST FROM A2A TASK
 # ==========================================================
 
-def extract_manifest_from_task(
-    task
-) -> dict:
-    """
-    Extract the VAWO manifest payload from
-    the completed A2A Task artifact.
-    """
-
+def extract_manifest_from_task(task) -> dict:
     if not task.artifacts:
-
-        raise RuntimeError(
-            "A2A Task contains no artifacts."
-        )
+        raise RuntimeError("A2A Task contains no artifacts.")
 
     for artifact in task.artifacts:
-
-        data_parts = get_data_parts(
-            artifact.parts
-        )
-
+        data_parts = get_data_parts(artifact.parts)
         for data in data_parts:
+            if isinstance(data, dict) and "manifest_json" in data:
+                return json.loads(data["manifest_json"])  # exact values preserved
 
-            if (
-                isinstance(data, dict)
-                and "manifest" in data
-            ):
-
-                return data["manifest"]
-
-    raise RuntimeError(
-        "VAWO Execution Manifest was not found "
-        "in the A2A Task artifacts."
-    )
+    raise RuntimeError("VAWO Execution Manifest was not found in the A2A Task artifacts.")
 
 
 # ==========================================================

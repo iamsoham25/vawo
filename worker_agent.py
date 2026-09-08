@@ -364,7 +364,7 @@ print(result)
         )
 
         # Add the signature after signing.
-        manifest_data["signature"] = signature
+        manifest_json_str = json.dumps(manifest_data, sort_keys=True, separators=(",", ":"))
 
         print()
         print("Execution Manifest signed.")
@@ -378,7 +378,7 @@ print(result)
 
         response_payload = {
             "worker_agent_id": AGENT_ID,
-            "manifest": manifest_data
+            "manifest_json": manifest_json_str   # <-- string, not nested dict
         }
 
         print()
