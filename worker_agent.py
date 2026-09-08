@@ -313,7 +313,7 @@ print(result)
             result_value = stdout
 
         result_artifact = {
-            "result": result_value
+            "result": int(float(stdout.strip()))
         }
 
         print()
@@ -343,9 +343,11 @@ print(result)
             receipts=self.gateway.receipt_chain
         )
 
-        # Convert to JSON-compatible dictionary
+        # Serialize the manifest WITHOUT the signature field.
+        # The Verifier also verifies the unsigned manifest.
         manifest_data = manifest.model_dump(
-            mode="json"
+            mode="json",
+            exclude={"signature"}
         )
 
         print()
@@ -360,16 +362,13 @@ print(result)
             )
         )
 
-        # ------------------------------------------------------
-        # SIGN MANIFEST
-        # ------------------------------------------------------
-
+        # Sign the exact canonical unsigned manifest.
         signature = sign_data(
             self.private_key,
             manifest_data
         )
 
-        # Add signature to manifest
+        # Add the signature after signing.
         manifest_data["signature"] = signature
 
         print()
