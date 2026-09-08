@@ -363,7 +363,10 @@ print(result)
             manifest_data
         )
 
-        # Add the signature after signing.
+        # Add the signature into the dict — THIS LINE WAS MISSING
+        manifest_data["signature"] = signature
+
+        # NOW serialize — manifest_data includes the signature at this point
         manifest_json_str = json.dumps(manifest_data, sort_keys=True, separators=(",", ":"))
 
         print()
