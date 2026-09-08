@@ -280,11 +280,8 @@ class VAWOWorkerExecutor(AgentExecutor):
         code = """
 import json
 import sys
-
 data = json.load(sys.stdin)
-
-result = data["a"] + data["b"]
-
+result = int(data["a"]) + int(data["b"])
 print(result)
 """
 
@@ -306,15 +303,13 @@ print(result)
 
         try:
 
-            result_value = int(stdout)
+            result_value = int(stdout.strip())
 
         except ValueError:
 
             result_value = stdout
 
-        result_artifact = {
-            "result": int(float(stdout.strip()))
-        }
+        result_artifact = {"result": result_value}
 
         print()
         print("Result artifact:")
