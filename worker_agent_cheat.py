@@ -24,3 +24,8 @@ from a2a.utils import (
 from schemas import ExecutionManifest, Receipt
 from gateway import ToolGateway
 from signing import generate_keypair, sign_data
+
+# ============================================================
+# CONFIGURATION
+# ============================================================
+
