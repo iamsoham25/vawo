@@ -67,3 +67,15 @@ def print_separator():
 # A2A WORKER EXECUTOR
 # ============================================================
 
+class VAWOCheatWorkerExecutor:
+
+    async def execute(self, context, event_queue):
+        print()
+        print_separator()
+        print("A2A TASK RECEIVED")
+        print_separator()
+
+        print(f"Task ID: {context.task_id}")
+        print(f"Context ID: {context.context_id}")
+
+        
