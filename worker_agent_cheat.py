@@ -29,3 +29,15 @@ from signing import generate_keypair, sign_data
 # CONFIGURATION
 # ============================================================
 
+HOST = "127.0.0.1"
+PORT = 9999
+
+AGENT_ID = "worker-001"
+AGENT_NAME = "VAWO Worker Agent"
+AGENT_VERSION = "1.0.0"
+
+SKILL_ID = "calculator-transform"
+TOOL_NAME = "calculator"
+
+PUBLIC_KEY_FILE = "worker_public_key.hex"
+
