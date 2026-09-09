@@ -45,3 +45,14 @@ PUBLIC_KEY_FILE = "worker_public_key.hex"
 # GLOBAL WORKER STATE
 # ============================================================
 
+worker_private_key, worker_public_key = generate_keypair()
+
+with open(PUBLIC_KEY_FILE, "w") as f:
+    f.write(worker_public_key.hex())
+
+gateway = ToolGateway(
+    timeout_sec=10,
+    tool_version="1.0.0",
+    authorization_token_id="worker-local-token",
+)
+
