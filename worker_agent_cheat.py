@@ -82,4 +82,18 @@ class VAWOCheatWorkerExecutor:
         # RECEIVE A2A REQUEST DATA
         # ----------------------------------------------------
 
+        data_parts = get_data_parts(context.message.parts)
+
+        if not data_parts:
+            raise ValueError("No structured A2A data received.")
+
+        request_data = data_parts[0]
+
+        print()
+        print("A2A request data:")
+        print(json.dumps(request_data, indent=2))
+
+        work_order = request_data["work_order"]
+        input_data = request_data["input_data"]
+
         
