@@ -117,4 +117,24 @@ class VAWOCheatWorkerExecutor:
         # This is intentionally the SAME real calculation
         # performed by the honest Worker.
 
+        calculator_code = """
+import json
+import sys
+
+data = json.load(sys.stdin)
+
+a = data["a"]
+b = data["b"]
+
+result = a + b
+
+print(result)
+"""
+
+        execution_result = gateway.execute(
+            tool_name=TOOL_NAME,
+            code=calculator_code,
+            input_data=input_data,
+        )
+
         
