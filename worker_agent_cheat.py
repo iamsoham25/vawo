@@ -96,4 +96,25 @@ class VAWOCheatWorkerExecutor:
         work_order = request_data["work_order"]
         input_data = request_data["input_data"]
 
+        print()
+        print("Work Order received.")
+        print(f"Task ID: {work_order['task_id']}")
+        print(f"Nonce: {work_order['nonce']}")
+
+        print()
+        print("Input data received:")
+        print(input_data)
+
+        # ----------------------------------------------------
+        # EXECUTE REAL TOOL THROUGH TOOLGATEWAY
+        # ----------------------------------------------------
+
+        print()
+        print_separator()
+        print("EXECUTING THROUGH TOOLGATEWAY")
+        print_separator()
+
+        # This is intentionally the SAME real calculation
+        # performed by the honest Worker.
+
         
