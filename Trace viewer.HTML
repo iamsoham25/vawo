@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VAWO — Execution Trace Viewer</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #151b23;
+    --panel-2: #1c2530;
+    --border: #2a333d;
+    --ink: #dbe4ec;
+    --muted: #7c8896;
+    --accent: #d9a441;
+    --pass: #4caf7d;
+    --fail: #e2574c;
+    --mono: "SF Mono", "Cascadia Code", Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  header {
+    margin-bottom: 32px;
+  }
+  header .kicker {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 650;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    color: var(--muted);
+    margin: 0;
+    max-width: 60ch;
+  }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin: 28px 0 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 14px;
+    padding: 10px 4px;
+    margin-right: 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .card h2 {
+    font-size: 13px;
+    text-transform: none;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+  .kv {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 6px 12px;
+    font-size: 13.5px;
+    font-family: var(--mono);
+  }
+  .kv .k { color: var(--muted); }
+  .kv .v { word-break: break-all; }
+
+  /* chain */
+  .chain {
+    position: relative;
+    padding-left: 28px;
+  }
+  .receipt {
+    position: relative;
+    padding: 14px 0 14px 20px;
+    border-left: 2px solid var(--border);
+  }
+  .receipt:last-child { border-left-color: transparent; }
+  .receipt::before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    top: 18px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .receipt .tool {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .receipt .hash {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .receipt .hash b { color: var(--ink); font-weight: 500; }
+  .link-ok {
+    font-size: 12px;
+    color: var(--pass);
+    font-family: var(--mono);
+    margin-top: 4px;
+  }
+
+  /* verdict */
+  .verdict {
+    border-radius: 8px;
+    padding: 22px;
+    border: 1px solid var(--border);
+  }
+  .verdict.pass { background: rgba(76,175,125,0.08); border-color: rgba(76,175,125,0.35); }
+  .verdict.fail { background: rgba(226,87,76,0.08); border-color: rgba(226,87,76,0.35); }
+  .verdict-title {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .verdict.pass .verdict-title { color: var(--pass); }
+  .verdict.fail .verdict-title { color: var(--fail); }
+  .verdict-reason {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .checks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    font-family: var(--mono);
+  }
+  .check .mark {
+    width: 16px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .check.ok .mark { color: var(--pass); }
+  .check.no .mark { color: var(--fail); }
+  .check.no .label { color: var(--fail); }
+
+  .footnote {
+    margin-top: 28px;
+    font-size: 12.5px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">VAWO / execution trace viewer</div>
+    <h1>Did the worker actually do the work?</h1>
+    <p>Every claimed result is checked against its signature, its hash-chained trace, and an independent re-execution — not just taken on faith.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-scenario="honest">Honest worker</button>
+    <button class="tab" data-scenario="cheat">Cheating worker</button>
+  </div>
+
+  <div class="card">
+    <h2>Work Order</h2>
+    <div class="kv" id="wo-fields"></div>
+  </div>
+
+  <div class="card">
+    <h2>Execution receipt chain</h2>
+    <div class="chain" id="chain"></div>
+  </div>
+
+  <div class="card">
+    <h2>Claimed result vs. independent re-execution</h2>
+    <div class="kv" id="result-fields"></div>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <div class="verdict-title" id="verdict-title"></div>
+    <div class="verdict-reason" id="verdict-reason"></div>
+    <div class="checks" id="checks"></div>
+  </div>
+
+  <div class="footnote">
+    Data shown here is a fixed illustrative trace from a real VAWO run — not live. See the project README for how to reproduce this over a real A2A network round-trip.
+  </div>
+
+</div>
+
+<script>
+const data = {
+  honest: {
+    workOrder: {
+      task_id: "vawo-task-001",
+      nonce: "vawo-nonce-001",
+      tool_allowlist: "calculator",
+      expiry: "5 min from issue",
+    },
+    receipts: [
+      { tool: "calculator", request: "1869d8bb7c80…4514", response: "a27f70fe0a86…d72e", parent: null },
+    ],
+    claimed: 30,
+    reexecuted: 30,
+    verdict: {
+      pass: true,
+      reason: "execution verification successful",
+      checks: [
+        ["manifest signature", true],
+        ["merkle root", true],
+        ["tool allowlist", true],
+        ["receipt chain integrity", true],
+        ["independent re-execution", true],
+      ]
+    }
+  },
+  cheat: {
+    workOrder: {
+      task_id: "vawo-task-001",
+      nonce: "vawo-nonce-001",
+      tool_allowlist: "calculator",
+      expiry: "5 min from issue",
+    },
+    receipts: [
+      { tool: "calculator", request: "1869d8bb7c80…4514", response: "a27f70fe0a86…d72e", parent: null },
+    ],
+    claimed: 999,
+    reexecuted: 30,
+    verdict: {
+      pass: false,
+      reason: "re-execution mismatch: claimed result does not match independent execution",
+      checks: [
+        ["manifest signature", true],
+        ["merkle root", true],
+        ["tool allowlist", true],
+        ["receipt chain integrity", true],
+        ["independent re-execution", false],
+      ]
+    }
+  }
+};
+
+function render(scenario) {
+  const d = data[scenario];
+
+  const woEl = document.getElementById("wo-fields");
+  woEl.innerHTML = Object.entries(d.workOrder).map(([k,v]) =>
+    `<div class="k">${k}</div><div class="v">${v}</div>`
+  ).join("");
+
+  const chainEl = document.getElementById("chain");
+  chainEl.innerHTML = d.receipts.map((r, i) => `
+    <div class="receipt">
+      <div class="tool">${i+1}. ${r.tool}</div>
+      <div class="hash">request &nbsp;<b>${r.request}</b></div>
+      <div class="hash">response <b>${r.response}</b></div>
+      <div class="link-ok">✓ links to previous receipt hash</div>
+    </div>
+  `).join("");
+
+  const resEl = document.getElementById("result-fields");
+  const match = d.claimed === d.reexecuted;
+  resEl.innerHTML = `
+    <div class="k">worker claimed</div><div class="v" style="color:${match ? 'var(--pass)' : 'var(--fail)'}">${d.claimed}</div>
+    <div class="k">independently re-run</div><div class="v">${d.reexecuted}</div>
+    <div class="k">match</div><div class="v" style="color:${match ? 'var(--pass)' : 'var(--fail)'}">${match ? "yes" : "no"}</div>
+  `;
+
+  const verdictEl = document.getElementById("verdict");
+  const titleEl = document.getElementById("verdict-title");
+  const reasonEl = document.getElementById("verdict-reason");
+  const checksEl = document.getElementById("checks");
+
+  verdictEl.className = "verdict " + (d.verdict.pass ? "pass" : "fail");
+  titleEl.textContent = d.verdict.pass ? "✓ ACCEPTED" : "✗ REJECTED";
+  reasonEl.textContent = d.verdict.reason;
+  checksEl.innerHTML = d.verdict.checks.map(([label, ok]) => `
+    <div class="check ${ok ? 'ok' : 'no'}">
+      <span class="mark">${ok ? "✓" : "✗"}</span>
+      <span class="label">${label}</span>
+    </div>
+  `).join("");
+}
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    render(tab.dataset.scenario);
+  });
+});
+
+render("honest");
+</script>
+</body>
+</html>
