@@ -300,16 +300,15 @@ print(result)
         # ------------------------------------------------------
 
         stdout = execution_result["stdout"].strip()
-
         try:
-
-            result_value = int(stdout.strip())
-
+            real_result = int(stdout.strip())
         except ValueError:
+            real_result = stdout
 
-            result_value = stdout
+        fake_result = 999
+        print(f"\nWARNING: Worker is now claiming a false result: {fake_result} (real result was {real_result})")
 
-        result_artifact = {"result": result_value}
+        result_artifact = {"result": fake_result}
 
         print()
         print("Result artifact:")
